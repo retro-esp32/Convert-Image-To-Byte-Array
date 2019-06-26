@@ -1,0 +1,169 @@
+<html>
+<head>
+  <style type="text/css">
+    html, body {
+      flex:1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      width:100%;
+      min-height: 100vh;
+      height: 100%;
+      margin: 0;
+      font-family: Avenir, Roboto, Verdana;
+    }
+
+    canvas {
+      border: solid 1px;
+    }
+
+    textarea {
+      flex:1;
+      width:100%;
+      overflow: scroll;
+      white-space: nowrap;
+    }
+
+    div {
+      width:calc(100% - 50px);
+      display:flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      flex-direction: column;
+    }
+
+    .preview {
+      display:flex;
+      flex-direction:row;
+    }
+
+    .input {
+
+    }
+
+    .output {
+      height:75vh;
+    }    
+
+    h1, p {
+      margin:10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class='input'>
+    <h1>Step 1.</h1>
+    <p>Select File</p>
+    <div class='preview'>
+      <form><input type='file' accept='image/*'/></form>
+      <canvas id="canvas" height=1 width=1></canvas>
+    </div>
+  </div>
+  <div class='output'>
+    <h1>Step 2.</h1>
+    <p>Copy Output</p>
+    <textarea id="uint16_t" rows="25"></textarea>
+  </div>
+  <div>
+    <h1>Step 3.</h1>
+    <p>Say Thanks</p>
+  </div>  
+	<script type="text/javascript">
+    /*
+      process
+    */
+    const uint16_t = document.getElementById('uint16_t');
+    const process = () => { 
+      /*
+        canvas
+      */
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      const input = document.querySelector('input');
+      var name;
+      var w;
+      var h;
+
+      var img = new Image();
+      img.onload = () => {
+        w = img.width;
+        h = img.height;
+        canvas.width = w;
+        canvas.height = h;
+        convert(ctx, img, w, h, name)
+      }
+
+      var reader = new FileReader();
+      reader.onload = (e) => {
+        img.src = reader.result;
+      };
+      name = input.files[0].name.split('.')[0];
+      reader.readAsDataURL(input.files[0]);      
+    }
+
+    /*
+      convert
+    */
+    const convert = (ctx = {}, img = {}, w = 0, h = 0, name = 'default') => {
+      ctx.drawImage(img, 0, 0);
+      var data = '';
+      for(let y = 0; y < h; y++) {
+        data += `\t`;
+        for(let x = 0; x < w; x++) {
+          const rgb = ctx.getImageData(x, y, 1, 1).data;
+          const red = rgb[0];
+          const green = rgb[1];
+          const blue = rgb[2];             
+          const rgb565 = (((31*(red+4))/255)<<11) | (((63*(green+2))/255)<<5) | ((31*(blue+4))/255);
+
+          data += `${rgb565},`;    
+        } 
+        if(y !== h - 1){data += `\n`;}
+      }
+      data = `const uint16_t ${name}[32][32] = {\n${data}\n};`;
+      uint16_t.value = data;
+    }
+
+    /*
+      file handler
+    */
+    document.querySelector('input').addEventListener('change', process);    
+    /*
+    var file = 'zx'    
+    var ctx = document.getElementById('canvas');
+    if (ctx.getContext) {
+
+      ctx = ctx.getContext('2d');
+
+      //Loading of the home test image - img1
+      var img = new Image();
+
+      //drawing of the test image - img
+      document.getElementById('uint16_t').value = `const uint16_t ${file}[32][32] = {\n`;
+      img.onload = function () {
+        ctx.drawImage(img, 0, 0);
+        var matrix = [];
+        for(y = 0; y < 32; y++) { 
+          var col = [];
+          for(x = 0; x < 32; x++) {
+            var rgb = ctx.getImageData(x, y, 1, 1).data;
+            var red = rgb[0];
+            var green = rgb[1];
+            var blue = rgb[2];             
+            var rgb565 = (((31*(red+4))/255)<<11) | (((63*(green+2))/255)<<5) | ((31*(blue+4))/255) 
+            col.push(rgb565);
+          }  
+           document.getElementById('OUTPUT').value+= `\t{${col}},\n`
+          matrix.push(col);         
+        } 
+        document.getElementById('OUTPUT').value+= `};`
+      };
+
+      img.src = `${file}.gif`;
+    }		
+    */
+	</script>
+</body>
+</html>
