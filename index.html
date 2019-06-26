@@ -188,17 +188,17 @@
       ctx.drawImage(img, 0, 0);      
       var data = '';
       for(let y = 0; y < h; y++) {
-        data += `\t`;
+        //data += `\t{`;
+        var cols = []; 
         for(let x = 0; x < w; x++) {
           const rgb = ctx.getImageData(x, y, 1, 1).data;
           const red = rgb[0];
           const green = rgb[1];
           const blue = rgb[2];             
           const rgb565 = (((31*(red+4))/255)<<11) | (((63*(green+2))/255)<<5) | ((31*(blue+4))/255);
-
-          data += `${rgb565},`;    
+          cols.push(rgb565);   
         } 
-        if(y !== h - 1){data += `\n`;}
+        data += `\t{${cols}},\n`;
       }
       data = `const uint16_t ${name}[${h}][${w}] = {\n${data}\n};`;
       uint16_t.value = data;
