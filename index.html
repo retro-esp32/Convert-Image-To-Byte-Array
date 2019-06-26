@@ -15,7 +15,7 @@
     }
 
     canvas {
-      border: solid 1px;
+
     }
 
     textarea {
@@ -36,6 +36,7 @@
     .preview {
       display:flex;
       flex-direction:row;
+      justify-content:space-between;
     }
 
     .input {
@@ -46,8 +47,27 @@
       height:75vh;
     }    
 
-    h1, p {
+    #warning {
+      background:#CC0000;
+      color:#FFFFFF;
+      padding:10px;
       margin:10px 0;
+      display: none;
+      text-transform: capitalize;
+    }
+
+    #success {
+      background:#00CC00;
+      color:#FFFFFF;
+      padding:10px;
+      margin:10px 0;
+      display: none;
+      text-transform: capitalize;
+    }    
+
+    h1, p {
+      margin:0;
+      padding:10px 0;
     }
   </style>
 </head>
@@ -56,7 +76,11 @@
     <h1>Step 1.</h1>
     <p>Select File</p>
     <div class='preview'>
-      <form><input type='file' accept='image/*'/></form>
+      <div>
+        <p id="warning">image to big to process</p>
+        <p id="success">image successfully processed</p>      
+        <form><input type='file' accept='image/*'/></form>
+      </div>
       <canvas id="canvas" height=1 width=1></canvas>
     </div>
   </div>
@@ -74,11 +98,15 @@
       process
     */
     const uint16_t = document.getElementById('uint16_t');
+    const warning = document.getElementById('warning');
+    const success = document.getElementById('success');
     const process = () => { 
+      warning.style.display = 'none';
+      success.style.display = 'none';
       /*
         canvas
       */
-      const canvas = document.getElementById('canvas');
+      const canvas = document.querySelector('canvas');
       const ctx = canvas.getContext('2d');
       
       const input = document.querySelector('input');
@@ -90,9 +118,14 @@
       img.onload = () => {
         w = img.width;
         h = img.height;
-        canvas.width = w;
-        canvas.height = h;
-        convert(ctx, img, w, h, name)
+        if(w * h <= 76800) {
+          canvas.width = w;
+          canvas.height = h;                               
+          convert(ctx, img, w, h, name);                            
+        }
+        if(w * h > 76800) {
+          warning.style.display = 'block';
+        }
       }
 
       var reader = new FileReader();
@@ -106,8 +139,10 @@
     /*
       convert
     */
-    const convert = (ctx = {}, img = {}, w = 0, h = 0, name = 'default') => {
-      ctx.drawImage(img, 0, 0);
+    const convert = (ctx = {}, img = {}, w = 0, h = 0, name = 'default') => {                                                                             
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);                                                                               
+      ctx.drawImage(img, 0, 0);      
       var data = '';
       for(let y = 0; y < h; y++) {
         data += `\t`;
@@ -122,8 +157,9 @@
         } 
         if(y !== h - 1){data += `\n`;}
       }
-      data = `const uint16_t ${name}[32][32] = {\n${data}\n};`;
+      data = `const uint16_t ${name}[${h}][${w}] = {\n${data}\n};`;
       uint16_t.value = data;
+      success.style.display = 'block';
     }
 
     /*
