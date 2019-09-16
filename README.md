@@ -1,10 +1,10 @@
-# Image to UINT16_T
+# Convert Image To Byte Array
 > Online Image To Array Converter for C/C++
 
 [![Example](https://repository-images.githubusercontent.com/193940767/449e0480-d884-11e9-950b-0ef3e5a9a43d)](https://retro-esp32.github.io/Convert-Image-To-Byte-Array/)
 
 ## Easy as 1, 2, 3
-> 1. 
+> 1.
 
 Select a File
 
