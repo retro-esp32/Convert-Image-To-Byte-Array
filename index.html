@@ -332,9 +332,9 @@
           const blue = rgb[2];
           // const rgb565 = (((31*(red+4))/255)<<11) | (((63*(green+2))/255)<<5) | ((31*(blue+4))/255);
           let rgb565 = 0
-          rgb565 = rgb565 | (r << 11);
-          rgb565 = rgb565 | (g << 5);
-          rgb565 = rgb565 | b;
+          rgb565 = rgb565 | (red << 11);
+          rgb565 = rgb565 | (green << 5);
+          rgb565 = rgb565 | blue;
           cols.push(`0x${rgb565.toString(16)}`);
         }
         data += `\t{${cols}},\n`;
